@@ -13,15 +13,16 @@ namespace FieldGraphX
     public partial class FieldGraphXControl : PluginControlBase
     {
         private Settings mySettings;
+        private InfoLoader myInfoLoader;
 
         public FieldGraphXControl()
         {
             InitializeComponent();
         }
 
-        private void MyPluginControl_Load(object sender, EventArgs e)
+        private void FieldGraphXControl_Load(object sender, EventArgs e)
         {
-            ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
+            //ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
@@ -34,45 +35,26 @@ namespace FieldGraphX
             {
                 LogInfo("Settings found and loaded");
             }
+
+            myInfoLoader = new InfoLoader(Service);
+            cmbEntities.DataSource = myInfoLoader.LoadEntities();
+            if(cmbEntities.Items.Count > 0)
+            {
+                cmbEntities.SelectedIndex = 0;
+            }
+            if(cmbEntities.Text?.Trim()?.ToLower() != "")
+            {
+                cmbFields.DataSource = myInfoLoader.LoadFields(cmbEntities.Text.Trim().ToLower());
+            }
+            else
+            {
+                cmbFields.DataSource = new List<string>();
+            }
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
         {
             CloseTool();
-        }
-
-        private void tsbSample_Click(object sender, EventArgs e)
-        {
-            // The ExecuteMethod method handles connecting to an
-            // organization if XrmToolBox is not yet connected
-            ExecuteMethod(GetAccounts);
-        }
-
-        private void GetAccounts()
-        {
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Getting accounts",
-                Work = (worker, args) =>
-                {
-                    args.Result = Service.RetrieveMultiple(new QueryExpression("account")
-                    {
-                        TopCount = 50
-                    });
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as EntityCollection;
-                    if (result != null)
-                    {
-                        MessageBox.Show($"Found {result.Entities.Count} accounts");
-                    }
-                }
-            });
         }
 
         /// <summary>
@@ -103,8 +85,8 @@ namespace FieldGraphX
         private async void btnSearch_Click(object sender, EventArgs e)
         {
             tvResults.Nodes.Clear();
-            string entity = txtEntity.Text.Trim().ToLower();
-            string field = txtField.Text.Trim().ToLower();
+            string entity = cmbEntities.Text.Trim().ToLower();
+            string field = cmbFields.Text.Trim().ToLower();
 
             if (string.IsNullOrEmpty(entity) || string.IsNullOrEmpty(field))
             {
@@ -133,6 +115,7 @@ namespace FieldGraphX
                             node.Nodes.Add("Feld als Trigger verwendet: " + flow.IsFieldUsedAsTrigger);
                             node.Nodes.Add("Feld wird gesetzt: " + flow.IsFieldSet);
                             tvResults.Nodes.Add(node);
+                            tvResults.ExpandAll();
                         }
                     }
                     else
@@ -141,6 +124,20 @@ namespace FieldGraphX
                     }
                 }
             });
+
+
+        }
+
+        private void cmbEntities_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Setze die DataSource auf null, um die Items-Sammlung zurückzusetzen
+            cmbFields.DataSource = null;
+
+            // Lade die Felder basierend auf der ausgewählten Entität
+            var fields = myInfoLoader.LoadFields(cmbEntities.Text.Trim().ToLower());
+
+            // Weise die neue Datenquelle zu
+            cmbFields.DataSource = fields;
         }
     }
 }

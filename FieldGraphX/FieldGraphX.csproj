@@ -178,6 +178,9 @@
     <Compile Include="FlowAnalyzer.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="InfoLoader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Models.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
@@ -185,6 +188,14 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Unbenannt.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FieldGraphXControl.resx">
+      <DependentUpon>FieldGraphXControl.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
