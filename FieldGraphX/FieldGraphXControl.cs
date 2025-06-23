@@ -5,8 +5,10 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using XrmToolBox.Extensibility;
+using Label = System.Windows.Forms.Label;
 
 namespace FieldGraphX
 {
@@ -82,9 +84,9 @@ namespace FieldGraphX
             }
         }
 
-        private async void btnSearch_Click(object sender, EventArgs e)
+        private void btnSearch_Click(object sender, EventArgs e)
         {
-            tvResults.Nodes.Clear();
+            flpResults.Controls.Clear(); // FlowLayoutPanel für Ergebnisse leeren
             string entity = cmbEntities.Text.Trim().ToLower();
             string field = cmbFields.Text.Trim().ToLower();
 
@@ -94,13 +96,15 @@ namespace FieldGraphX
                 return;
             }
 
+            string environmentUrl = mySettings.LastUsedOrganizationWebappUrl;
+
             WorkAsync(new WorkAsyncInfo
             {
                 Message = "Flows werden analysiert...",
                 Work = (w, ev) =>
                 {
                     var analyzer = new FlowAnalyzer(Service);
-                    var results = analyzer.AnalyzeFlows(entity, field);
+                    var results = analyzer.AnalyzeFlows(entity, field,environmentUrl);
                     ev.Result = results;
                 },
                 PostWorkCallBack = ev =>
@@ -110,6 +114,81 @@ namespace FieldGraphX
                     {
                         foreach (var flow in results)
                         {
+                            results.Sort((x, y) => string.Compare(x.FlowName, y.FlowName, StringComparison.OrdinalIgnoreCase));
+                            // Erstelle eine Kachel für jeden Flow
+                            var flowPanel = new Panel
+                            {
+                                BorderStyle = BorderStyle.FixedSingle,
+                                Width = 350,
+                                Height = 150,
+                                Padding = new Padding(10)
+                            };
+
+                            var lblFlowName = new Label
+                            {
+                                Text = $"Flow: {flow.FlowName}",
+                                Font = new Font("Arial", 10, FontStyle.Bold),
+                                Dock = DockStyle.Top,
+                                AutoSize = false
+                            };
+
+                            var lblTriggerType = new Label
+                            {
+                                Text = $"Trigger: {flow.TriggerType}",
+                                Dock = DockStyle.Top
+                            };
+
+                            var lblFieldUsedAsTrigger = new Label
+                            {
+                                Text = $"Feld als Trigger verwendet: {flow.IsFieldUsedAsTrigger}",
+                                Dock = DockStyle.Top
+                            };
+
+                            var lblFieldSet = new Label
+                            {
+                                Text = $"Feld wird gesetzt: {flow.IsFieldSet}",
+                                Dock = DockStyle.Top
+                            };
+
+                            var btnOpenFlow = new Button
+                            {
+                                Text = "Flow öffnen",
+                                Dock = DockStyle.Bottom,
+                                Height = 30
+                            };
+
+                            btnOpenFlow.Click += (s, args) =>
+                            {
+                                try
+                                {
+                                    if (string.IsNullOrEmpty(flow.FlowUrl))
+                                    {
+                                        MessageBox.Show("Die Flow-URL ist leer oder ungültig.");
+                                        return;
+                                    }
+                                    MessageBox.Show($"Öffne Flow: {flow.FlowName} ({flow.FlowUrl})");
+                                    // Öffne die Flow-URL im Standard-Webbrowser
+                                    var psi = new System.Diagnostics.ProcessStartInfo
+                                    {
+                                        FileName = flow.FlowUrl, // Die URL des Flows
+                                        UseShellExecute = true // Shell-Execution aktivieren, um den Standardbrowser zu verwenden
+                                    };
+                                    System.Diagnostics.Process.Start(psi);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show($"Fehler beim Öffnen des Flows: {ex.Message}");
+                                }
+                            };
+
+                            flowPanel.Controls.Add(btnOpenFlow);
+                            flowPanel.Controls.Add(lblFieldSet);
+                            flowPanel.Controls.Add(lblFieldUsedAsTrigger);
+                            flowPanel.Controls.Add(lblTriggerType);
+                            flowPanel.Controls.Add(lblFlowName);
+
+                            flpResults.Controls.Add(flowPanel); // Kachel zum FlowLayoutPanel hinzufügen
+
                             var node = new TreeNode(flow.FlowName);
                             node.Nodes.Add("Trigger: " + flow.TriggerType);
                             node.Nodes.Add("Feld als Trigger verwendet: " + flow.IsFieldUsedAsTrigger);
@@ -124,8 +203,6 @@ namespace FieldGraphX
                     }
                 }
             });
-
-
         }
 
         private void cmbEntities_SelectedIndexChanged(object sender, EventArgs e)

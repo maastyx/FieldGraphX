@@ -27,6 +27,7 @@ namespace FieldGraphX
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.tsbClose = new System.Windows.Forms.ToolStripButton();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.flpResults = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // cmbEntities
@@ -82,7 +83,7 @@ namespace FieldGraphX
             // 
             this.tvResults.Location = new System.Drawing.Point(20, 113);
             this.tvResults.Name = "tvResults";
-            this.tvResults.Size = new System.Drawing.Size(702, 283);
+            this.tvResults.Size = new System.Drawing.Size(702, 219);
             this.tvResults.TabIndex = 5;
             // 
             // toolStripMenu
@@ -102,6 +103,15 @@ namespace FieldGraphX
             this.tssSeparator1.Name = "tssSeparator1";
             this.tssSeparator1.Size = new System.Drawing.Size(6, 6);
             // 
+            // flpResults
+            // 
+            this.flpResults.AutoScroll = true;
+            this.flpResults.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flpResults.Location = new System.Drawing.Point(20, 338);
+            this.flpResults.Name = "flpResults";
+            this.flpResults.Size = new System.Drawing.Size(1329, 367);
+            this.flpResults.TabIndex = 6;
+            // 
             // FieldGraphXControl
             // 
             this.Controls.Add(this.cmbEntities);
@@ -110,13 +120,15 @@ namespace FieldGraphX
             this.Controls.Add(this.lblField);
             this.Controls.Add(this.btnAnalyze);
             this.Controls.Add(this.tvResults);
+            this.Controls.Add(this.flpResults);
             this.Name = "FieldGraphXControl";
-            this.Size = new System.Drawing.Size(1051, 411);
+            this.Size = new System.Drawing.Size(1383, 708);
             this.Load += new System.EventHandler(this.FieldGraphXControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
+
 
 
 
@@ -130,5 +142,6 @@ namespace FieldGraphX
         private System.Windows.Forms.TreeView tvResults;
         private ComboBox cmbEntities;
         private ComboBox cmbFields;
+        private FlowLayoutPanel flpResults;
     }
 }

@@ -19,12 +19,12 @@ namespace FlowGraphX
             _service = service;
         }
 
-        public List<FlowUsage> AnalyzeFlows(string entityLogicalName, string fieldLogicalName)
+        public List<FlowUsage> AnalyzeFlows(string entityLogicalName, string fieldLogicalName, string environmentUrl)
         {
             var results = new List<FlowUsage>();
             var query = new QueryExpression("workflow")
             {
-                ColumnSet = new ColumnSet("name", "clientdata"),
+                ColumnSet = new ColumnSet("name", "clientdata", "workflowid"),
                 TopCount = 5000,
                 Criteria =
                 {
@@ -61,15 +61,16 @@ namespace FlowGraphX
 
                 if (containsEntity && containsField)
                 {
-                    LogInfo($"Flow '{name}' uses field '{fieldLogicalName}' in entity '{entityLogicalName}' Json {json}.");
                     var usage = new FlowUsage
                     {
                         FlowName = name,
                         TriggerType = ExtractTriggerType(json),
                         IsFieldUsedAsTrigger = IsFieldUsedInTrigger(json, entityLogicalName, fieldLogicalName),
-                        IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName)
+                        IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName),
+                        FlowUrl = $"{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}" // Dynamische URL basierend auf Umgebung
                     };
-                    if(usage.IsFieldSet || usage.IsFieldUsedAsTrigger)
+
+                    if (usage.IsFieldSet || usage.IsFieldUsedAsTrigger)
                     {
                         results.Add(usage);
                     }

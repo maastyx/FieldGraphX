@@ -8,6 +8,8 @@ namespace FieldGraphX.Models
         public string TriggerType { get; set; }
         public bool IsFieldUsedAsTrigger { get; set; }
         public bool IsFieldSet { get; set; }
+        public string FlowUrl { get; set; }
+
     }
 
     public class FlowHierarchy

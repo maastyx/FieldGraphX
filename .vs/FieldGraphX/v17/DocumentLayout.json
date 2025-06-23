@@ -3,24 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\fabia\\Code\\FieldGraphX\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|FieldGraphX||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\infoloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\infoloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\fieldgraphx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\fieldgraphxcontrol.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\flowanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -35,15 +26,24 @@
       "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\settings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\properties\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\fieldgraphxcontrol.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\fieldgraphxcontrol.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\infoloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\infoloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|c:\\users\\fabia\\code\\fieldgraphx\\fieldgraphx\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|solutionrelative:fieldgraphx\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|FieldGraphX||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B2FE0C21-8BC2-4B17-AC64-40577F14433D}|FieldGraphX\\FieldGraphX.csproj|C:\\Users\\fabia\\Code\\FieldGraphX\\fieldgraphx\\flowanalyzer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -60,75 +60,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "FieldGraphXControl.designer.cs",
-              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.designer.cs",
-              "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphXControl.designer.cs",
-              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.designer.cs",
-              "RelativeToolTip": "FieldGraphX\\FieldGraphXControl.designer.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAQwCcAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-22T20:15:13.719Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AssemblyInfo.cs",
-              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Properties\\AssemblyInfo.cs",
-              "RelativeDocumentMoniker": "FieldGraphX\\Properties\\AssemblyInfo.cs",
-              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Properties\\AssemblyInfo.cs",
-              "RelativeToolTip": "FieldGraphX\\Properties\\AssemblyInfo.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-23T16:53:57.537Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "FieldGraphXControl.cs",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs",
               "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphXControl.cs",
               "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs",
               "RelativeToolTip": "FieldGraphX\\FieldGraphXControl.cs",
-              "ViewState": "AgIAAHsAAAAAAAAAAAAUwIYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAAASwGIAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-22T20:14:44.976Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FieldGraphXControl.cs [Entwurf]",
-              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs",
-              "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphXControl.cs",
-              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs [Entwurf]",
-              "RelativeToolTip": "FieldGraphX\\FieldGraphXControl.cs [Entwurf]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-23T17:12:20.761Z",
-              "EditorCaption": " [Entwurf]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "FieldGraphX.cs",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphX.cs",
               "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphX.cs",
               "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphX.cs",
               "RelativeToolTip": "FieldGraphX\\FieldGraphX.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAowDAAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-22T20:13:39.788Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 9,
               "Title": "InfoLoader.cs",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\InfoLoader.cs",
               "RelativeDocumentMoniker": "FieldGraphX\\InfoLoader.cs",
@@ -141,33 +103,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Models.cs",
-              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Models.cs",
-              "RelativeDocumentMoniker": "FieldGraphX\\Models.cs",
-              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Models.cs",
-              "RelativeToolTip": "FieldGraphX\\Models.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-22T20:17:58.926Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "FlowAnalyzer.cs",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FlowAnalyzer.cs",
               "RelativeDocumentMoniker": "FieldGraphX\\FlowAnalyzer.cs",
               "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FlowAnalyzer.cs",
               "RelativeToolTip": "FieldGraphX\\FlowAnalyzer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAABMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-22T20:18:14.374Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 8,
+              "Title": "FieldGraphXControl.designer.cs",
+              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.designer.cs",
+              "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphXControl.designer.cs",
+              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.designer.cs",
+              "RelativeToolTip": "FieldGraphX\\FieldGraphXControl.designer.cs",
+              "ViewState": "AgIAAHQAAAAAAAAAAAAUwIEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-22T20:15:13.719Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Models.cs",
+              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Models.cs",
+              "RelativeDocumentMoniker": "FieldGraphX\\Models.cs",
+              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Models.cs",
+              "RelativeToolTip": "FieldGraphX\\Models.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAkAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-22T20:17:58.926Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "FieldGraphX",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphX.csproj",
               "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphX.csproj",
@@ -179,7 +154,45 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 5,
+              "Title": "Settings.cs",
+              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Settings.cs",
+              "RelativeDocumentMoniker": "FieldGraphX\\Settings.cs",
+              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Settings.cs",
+              "RelativeToolTip": "FieldGraphX\\Settings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-22T20:14:14.681Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Properties\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "FieldGraphX\\Properties\\AssemblyInfo.cs",
+              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Properties\\AssemblyInfo.cs*",
+              "RelativeToolTip": "FieldGraphX\\Properties\\AssemblyInfo.cs*",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAACIAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:53:57.537Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FieldGraphXControl.cs [Entwurf]",
+              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs",
+              "RelativeDocumentMoniker": "FieldGraphX\\FieldGraphXControl.cs",
+              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\FieldGraphXControl.cs [Entwurf]",
+              "RelativeToolTip": "FieldGraphX\\FieldGraphXControl.cs [Entwurf]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T17:12:20.761Z",
+              "EditorCaption": " [Entwurf]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "app.config",
               "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\app.config",
               "RelativeDocumentMoniker": "FieldGraphX\\app.config",
@@ -188,19 +201,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
               "WhenOpened": "2025-06-23T16:53:53.425Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Settings.cs",
-              "DocumentMoniker": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Settings.cs",
-              "RelativeDocumentMoniker": "FieldGraphX\\Settings.cs",
-              "ToolTip": "C:\\Users\\fabia\\Code\\FieldGraphX\\FieldGraphX\\Settings.cs",
-              "RelativeToolTip": "FieldGraphX\\Settings.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-22T20:14:14.681Z",
               "EditorCaption": ""
             },
             {
