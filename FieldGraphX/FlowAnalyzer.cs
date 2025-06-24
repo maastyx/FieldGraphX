@@ -64,10 +64,16 @@ namespace FlowGraphX
                     var usage = new FlowUsage
                     {
                         FlowName = name,
-                        TriggerType = ExtractTriggerType(json),
+                        Trigger = new Trigger
+                        {
+                            Name = ExtractTriggerInfo(json, "name"),
+                            Entity = ExtractTriggerInfo(json, "entity"),
+                            Field = ExtractTriggerInfo(json, "field")
+                        },
                         IsFieldUsedAsTrigger = IsFieldUsedInTrigger(json, entityLogicalName, fieldLogicalName),
                         IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName),
-                        FlowUrl = $"{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}" // Dynamische URL basierend auf Umgebung
+                        FlowUrl = $"{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}",
+                        // Dynamische URL basierend auf Umgebung
                     };
 
                     if (usage.IsFieldSet || usage.IsFieldUsedAsTrigger)
@@ -78,6 +84,37 @@ namespace FlowGraphX
             }
 
             return results;
+        }
+
+        private string ExtractTriggerInfo(string json, string typ)
+        {
+            try
+            {
+                JObject j = JObject.Parse(json);
+                var definition = j["properties"]["definition"];
+                var triggers = definition?["triggers"] as JObject;
+                if (triggers != null && triggers.Properties().Any())
+                {
+                    var triggerProperty = triggers.Properties().First();
+                    switch (typ)
+                    {
+                        case "name":
+                            return triggerProperty.Name.Replace("_", " ");
+                        case "entity":
+                            return triggerProperty.Value["inputs"]?["parameters"]?["subscriptionRequest/entityname"]?.ToString() ?? "Unbekannt";
+                        case "field":
+                            var filteringAttributes = triggerProperty.Value["inputs"]?["parameters"]?["subscriptionRequest/filteringattributes"]?.ToString();
+                            if (!string.IsNullOrEmpty(filteringAttributes))
+                            {
+                                var fields = filteringAttributes.Split(',');
+                                return fields.FirstOrDefault(f => f.Equals(triggerProperty.Name, StringComparison.OrdinalIgnoreCase)) ?? "Unbekannt";
+                            }
+                            return "Unbekannt";
+                    }      
+                }
+            }
+            catch { }
+            return "Unbekannt";
         }
 
         private bool IsFieldUsedInTrigger(string json, string entityLogicalName, string fieldLogicalName)
@@ -121,22 +158,6 @@ namespace FlowGraphX
             return false;
         }
 
-        private string ExtractTriggerType(string json)
-        {
-            try
-            {
-                JObject j = JObject.Parse(json);
-                var definition = j["properties"]["definition"];
-                var triggers = definition?["triggers"] as JObject;
-                if (triggers != null && triggers.Properties().Any())
-                {
-                    var triggerProperty = triggers.Properties().First();
-                    return triggerProperty.Name.Replace("_"," ");
-                }
-            }
-            catch { }
-            return "Unbekannt";
-        }
         private bool IsFieldSet(string json, string entityLogicalName, string fieldLogicalName)
         {
             try
@@ -203,59 +224,17 @@ namespace FlowGraphX
             }
             return false;
         }
-        public FlowHierarchy AnalyzeFlowsHierarchically(string entityLogicalName, string fieldLogicalName)
+        public List<FlowUsage> AnalyzeFlowsHierarchically(string entityLogicalName, string fieldLogicalName, string envUrl)
         {
-            var hierarchy = new FlowHierarchy
-            {
-                EntityName = entityLogicalName,
-                FieldName = fieldLogicalName
-            };
-
-            var query = new QueryExpression("workflow")
-            {
-                ColumnSet = new ColumnSet("name", "clientdata"),
-                Criteria =
-                {
-                    Conditions =
-                    {
-                        new ConditionExpression("category", ConditionOperator.Equal, 5),
-                        new ConditionExpression("type", ConditionOperator.Equal, 1)
-                    }
-                }
-            };
-
-            var flows = _service.RetrieveMultiple(query).Entities;
+            // Alle Flows analysieren und Hierarchie aufbauen
+            var flows = AnalyzeFlows(entityLogicalName, fieldLogicalName, envUrl);
+            flows = flows.Where(f => f.IsFieldSet == true && f.IsFieldUsedAsTrigger == false).ToList(); // Nur Flows bei denen der Wert gesetzt wurde
             foreach (var flow in flows)
             {
-                string name = flow.GetAttributeValue<string>("name");
-                string json = flow.GetAttributeValue<string>("clientdata");
-                if (string.IsNullOrEmpty(json)) continue;
-
-                bool containsEntity = json.ToLower().Contains(entityLogicalName.ToLower());
-                bool containsField = json.ToLower().Contains(fieldLogicalName.ToLower());
-
-                if (containsEntity && containsField)
-                {
-                    var usage = new FlowUsage
-                    {
-                        FlowName = name,
-                        TriggerType = ExtractTriggerType(json),
-                        IsFieldUsedAsTrigger = IsFieldUsedInTrigger(json, entityLogicalName, fieldLogicalName),
-                        IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName)
-                    };
-
-                    if (usage.IsFieldSet)
-                    {
-                        hierarchy.FlowsThatSetField.Add(usage);
-                    }
-                    else if (usage.IsFieldUsedAsTrigger)
-                    {
-                        hierarchy.FlowsThatUseFieldAsTrigger.Add(usage);
-                    }
-                }
+                var rootNode = new FlowHierarchyNode { Flow = flow };
+                flow.Parents = AnalyzeFlowsHierarchically(flow.Trigger.Entity, flow.Trigger.Field.Split(',').First().ToString(), envUrl);
             }
-
-            return hierarchy;
+            return flows;
         }
 
     }

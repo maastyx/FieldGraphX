@@ -28,6 +28,7 @@ namespace FieldGraphX
             this.tsbClose = new System.Windows.Forms.ToolStripButton();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.flpResults = new System.Windows.Forms.FlowLayoutPanel();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // cmbEntities
@@ -112,8 +113,19 @@ namespace FieldGraphX
             this.flpResults.Size = new System.Drawing.Size(1329, 367);
             this.flpResults.TabIndex = 6;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(487, 70);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(132, 23);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "Analysieren Herachie";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FieldGraphXControl
             // 
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.cmbEntities);
             this.Controls.Add(this.cmbFields);
             this.Controls.Add(this.lblEntity);
@@ -143,5 +155,6 @@ namespace FieldGraphX
         private ComboBox cmbEntities;
         private ComboBox cmbFields;
         private FlowLayoutPanel flpResults;
+        private Button button1;
     }
 }
