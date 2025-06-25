@@ -21,10 +21,14 @@ namespace FlowGraphX
 
         public List<FlowUsage> AnalyzeFlows(string entityLogicalName, string fieldLogicalName, string environmentUrl)
         {
+            if(string.IsNullOrEmpty(entityLogicalName) || string.IsNullOrEmpty(fieldLogicalName))
+            {
+                return new List<FlowUsage>();
+            }
             var results = new List<FlowUsage>();
             var query = new QueryExpression("workflow")
             {
-                ColumnSet = new ColumnSet("name", "clientdata", "workflowid"),
+                ColumnSet = new ColumnSet("name", "clientdata", "workflowid", "workflowid"),
                 TopCount = 5000,
                 Criteria =
                 {
@@ -73,6 +77,7 @@ namespace FlowGraphX
                         IsFieldUsedAsTrigger = IsFieldUsedInTrigger(json, entityLogicalName, fieldLogicalName),
                         IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName),
                         FlowUrl = $"{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}",
+                        FlowID = flow.GetAttributeValue<Guid>("workflowid") // Flow ID für spätere Vergleiche
                         // Dynamische URL basierend auf Umgebung
                     };
 
@@ -95,6 +100,10 @@ namespace FlowGraphX
                 var triggers = definition?["triggers"] as JObject;
                 if (triggers != null && triggers.Properties().Any())
                 {
+                    if(triggers.Properties().First().Name == "Booking set Workorder")
+                    {
+                        Console.WriteLine();
+                    }
                     var triggerProperty = triggers.Properties().First();
                     switch (typ)
                     {
@@ -107,7 +116,11 @@ namespace FlowGraphX
                             if (!string.IsNullOrEmpty(filteringAttributes))
                             {
                                 var fields = filteringAttributes.Split(',');
-                                return fields.FirstOrDefault(f => f.Equals(triggerProperty.Name, StringComparison.OrdinalIgnoreCase)) ?? "Unbekannt";
+                                return fields.First() ?? "Unbekannt";
+                            }
+                            if (string.IsNullOrEmpty(filteringAttributes))
+                            {
+                                return triggerProperty.Value["inputs"]?["parameters"]?["subscriptionRequest/filterexpression"]?.ToString().Split(' ').First() ?? "Unbekannt";
                             }
                             return "Unbekannt";
                     }      
@@ -228,12 +241,13 @@ namespace FlowGraphX
         {
             // Alle Flows analysieren und Hierarchie aufbauen
             var flows = AnalyzeFlows(entityLogicalName, fieldLogicalName, envUrl);
-            flows = flows.Where(f => f.IsFieldSet == true && f.IsFieldUsedAsTrigger == false).ToList(); // Nur Flows bei denen der Wert gesetzt wurde
-            foreach (var flow in flows)
+            var childflows = flows.Where(f => f.IsFieldSet == true && f.IsFieldUsedAsTrigger == false).ToList(); // Nur Flows bei denen der Wert gesetzt wurde
+            foreach (var flow in childflows)
             {
                 var rootNode = new FlowHierarchyNode { Flow = flow };
-                flow.Parents = AnalyzeFlowsHierarchically(flow.Trigger.Entity, flow.Trigger.Field.Split(',').First().ToString(), envUrl);
+                flow.Parents = AnalyzeFlowsHierarchically(flow.Trigger.Entity, flow.Trigger.Field.Split(',').First().ToString(), envUrl).Where(parentFlow => parentFlow.FlowID != flow.FlowID).ToList(); // Vergleiche die FlowId.ToList();
             }
+            flows = flows.Union(childflows).ToList().Distinct().ToList();
             return flows;
         }
 

@@ -6,6 +6,7 @@ using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using XrmToolBox.Extensibility;
 using Label = System.Windows.Forms.Label;
@@ -16,11 +17,23 @@ namespace FieldGraphX
     {
         private Settings mySettings;
         private InfoLoader myInfoLoader;
-        private Dictionary<FlowHierarchyNode, Point> panelPositions;
+        private FlowVisualizationPanel visualizationPanel;
+
+        // Dictionary zum Speichern der Flow-Positionen für das Zeichnen der Verbindungen
+        private Dictionary<Guid, Rectangle> flowCardPositions = new Dictionary<Guid, Rectangle>();
+        private List<FlowUsage> currentFlows = new List<FlowUsage>();
 
         public FieldGraphXControl()
         {
             InitializeComponent();
+            InitializeVisualization();
+        }
+
+        private void InitializeVisualization()
+        {
+            visualizationPanel = new FlowVisualizationPanel();
+            visualizationPanel.Dock = DockStyle.Fill;
+            this.Controls.Add(visualizationPanel); // oder zu deinem Container
         }
 
         private void FieldGraphXControl_Load(object sender, EventArgs e)
@@ -93,7 +106,7 @@ namespace FieldGraphX
 
             if (string.IsNullOrEmpty(entity) || string.IsNullOrEmpty(field))
             {
-                MessageBox.Show("Bitte Entität und Feld angeben.");
+                MessageBox.Show("Please specify entity and field.");
                 return;
             }
 
@@ -101,7 +114,7 @@ namespace FieldGraphX
 
             WorkAsync(new WorkAsyncInfo
             {
-                Message = "Flows werden analysiert...",
+                Message = "Flows are analyzed...",
                 Work = (w, ev) =>
                 {
                     var analyzer = new FlowAnalyzer(Service);
@@ -111,50 +124,51 @@ namespace FieldGraphX
                 PostWorkCallBack = ev =>
                 {
                     var results = ev.Result as List<FlowUsage>;
-                    var hierarchy = ev.Result as FlowHierarchy;
+                    MessageBox.Show($"Anzahl der Flows: {results.Count}");
                     if (results != null && results.Count > 0)
                     {
+                        results.Sort((x, y) => string.Compare(x.FlowName, y.FlowName, StringComparison.OrdinalIgnoreCase));
+
                         foreach (var flow in results)
                         {
-                            results.Sort((x, y) => string.Compare(x.FlowName, y.FlowName, StringComparison.OrdinalIgnoreCase));
                             // Erstelle eine Kachel für jeden Flow
                             var flowPanel = new Panel
                             {
                                 BorderStyle = BorderStyle.FixedSingle,
                                 Width = 350,
                                 Height = 150,
-                                Padding = new Padding(10)
+                                Padding = new Padding(5)
                             };
 
                             var lblFlowName = new Label
                             {
                                 Text = $"Flow: {flow.FlowName}",
-                                Font = new Font("Arial", 10, FontStyle.Bold),
+                                Font = new Font("Arial", 8, FontStyle.Bold),
                                 Dock = DockStyle.Top,
                                 AutoSize = false
                             };
 
                             var lblTriggerType = new Label
                             {
-                                Text = $"Trigger: {flow.Trigger.Name} auf Entity {flow.Trigger.Entity}",
+                                Text = $"Trigger: {flow.Trigger.Name} on Entity {flow.Trigger.Entity}",
                                 Dock = DockStyle.Top
                             };
 
                             var lblFieldUsedAsTrigger = new Label
                             {
-                                Text = $"Feld als Trigger verwendet: {flow.IsFieldUsedAsTrigger}",
+                                Text = $"Field used as trigger: {flow.IsFieldUsedAsTrigger}",
                                 Dock = DockStyle.Top
                             };
 
                             var lblFieldSet = new Label
                             {
-                                Text = $"Feld wird gesetzt: {flow.IsFieldSet}",
+                                Text = $"Field is set: {flow.IsFieldSet}",
                                 Dock = DockStyle.Top
                             };
 
                             var btnOpenFlow = new Button
                             {
-                                Text = "Flow öffnen",
+                                Text = "Open flow",
                                 Dock = DockStyle.Bottom,
                                 Height = 30
                             };
@@ -165,10 +179,10 @@ namespace FieldGraphX
                                 {
                                     if (string.IsNullOrEmpty(flow.FlowUrl))
                                     {
-                                        MessageBox.Show("Die Flow-URL ist leer oder ungültig.");
+                                        MessageBox.Show("The flow URL is empty or invalid.");
                                         return;
                                     }
-                                    MessageBox.Show($"Öffne Flow: {flow.FlowName} ({flow.FlowUrl})");
+                                    MessageBox.Show($"Open Flow: {flow.FlowName} ({flow.FlowUrl})");
                                     // Öffne die Flow-URL im Standard-Webbrowser
                                     var psi = new System.Diagnostics.ProcessStartInfo
                                     {
@@ -179,7 +193,7 @@ namespace FieldGraphX
                                 }
                                 catch (Exception ex)
                                 {
-                                    MessageBox.Show($"Fehler beim Öffnen des Flows: {ex.Message}");
+                                    MessageBox.Show($"Error when opening the flow: {ex.Message}");
                                 }
                             };
 
@@ -190,129 +204,14 @@ namespace FieldGraphX
                             flowPanel.Controls.Add(lblFlowName);
 
                             flpResults.Controls.Add(flowPanel); // Kachel zum FlowLayoutPanel hinzufügen
-
-                            var node = new TreeNode(flow.FlowName);
-                            node.Nodes.Add("Trigger: " + flow.Trigger.Name);
-                            node.Nodes.Add("Feld als Trigger verwendet: " + flow.IsFieldUsedAsTrigger);
-                            node.Nodes.Add("Feld wird gesetzt: " + flow.IsFieldSet);
-                            tvResults.Nodes.Add(node);
-                            tvResults.ExpandAll();
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Keine Flows gefunden.");
+                        MessageBox.Show("No flows found.");
                     }
-                    //if (hierarchy != null && hierarchy.RootNodes.Count > 0)
-                    //{
-                    //    VisualizeFlowHierarchy(hierarchy);
-                    //}
-                    //else
-                    //{
-                    //    MessageBox.Show("Keine Flows in der Hierarchie gefunden.");
-                    //}
                 }
             });
-        }
-
-        private void VisualizeFlowHierarchy(FlowHierarchy hierarchy)
-        {
-            flpResults.Controls.Clear(); // FlowLayoutPanel für Ergebnisse leeren
-            flpResults.AutoScroll = true;
-
-            panelPositions = new Dictionary<FlowHierarchyNode, Point>();
-
-            void CreateFlowPanel(FlowHierarchyNode node, int level, int index)
-            {
-                // Panel für den aktuellen Flow erstellen
-                var flowPanel = new Panel
-                {
-                    BorderStyle = BorderStyle.FixedSingle,
-                    Width = 300,
-                    Height = 120,
-                    Padding = new Padding(10),
-                    Location = new Point(50 + level * 350, 50 + index * 150) // Position basierend auf Level und Index
-                };
-
-                var lblFlowName = new Label
-                {
-                    Text = $"Flow: {node.Flow.FlowName}",
-                    Font = new Font("Arial", 10, FontStyle.Bold),
-                    Dock = DockStyle.Top,
-                    AutoSize = false
-                };
-
-                var lblTriggerType = new Label
-                {
-                    Text = $"Trigger: {node.Flow.Trigger.Name}",
-                    Dock = DockStyle.Top
-                };
-
-                var lblFieldUsedAsTrigger = new Label
-                {
-                    Text = $"Feld als Trigger verwendet: {node.Flow.IsFieldUsedAsTrigger}",
-                    Dock = DockStyle.Top
-                };
-
-                var lblFieldSet = new Label
-                {
-                    Text = $"Feld wird gesetzt: {node.Flow.IsFieldSet}",
-                    Dock = DockStyle.Top
-                };
-
-                flowPanel.Controls.Add(lblFlowName);
-                flowPanel.Controls.Add(lblTriggerType);
-                flowPanel.Controls.Add(lblFieldUsedAsTrigger);
-                flowPanel.Controls.Add(lblFieldSet);
-
-                flpResults.Controls.Add(flowPanel);
-                panelPositions[node] = flowPanel.Location; // Position speichern
-
-                // Kinderknoten verarbeiten
-                for (int i = 0; i < node.ChildNodes.Count; i++)
-                {
-                    CreateFlowPanel(node.ChildNodes[i], level + 1, index + i);
-                }
-            }
-
-            // Panels für die Root-Nodes erstellen
-            for (int i = 0; i < hierarchy.RootNodes.Count; i++)
-            {
-                CreateFlowPanel(hierarchy.RootNodes[i], 0, i);
-            }
-
-            //// Pfeile zwischen den Panels zeichnen
-            //flpResults.Paint += (s, e) =>
-            //{
-            //    foreach (var node in hierarchy.RootNodes)
-            //    {
-            //        DrawConnections(e.Graphics, node);
-            //    }
-            //};
-        }
-
-        private void DrawConnections(Graphics graphics, FlowHierarchyNode node)
-        {
-            if (node.ChildNodes.Count == 0) return;
-
-            var startPoint = panelPositions[node];
-            startPoint.Offset(150, 60); // Mitte des Panels
-
-            foreach (var child in node.ChildNodes)
-            {
-                var endPoint = panelPositions[child];
-                endPoint.Offset(0, 60); // Mitte des Panels
-
-                // Pfeil zeichnen
-                using (var pen = new Pen(Color.Black, 2))
-                {
-                    pen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                    graphics.DrawLine(pen, startPoint, endPoint);
-                }
-
-                // Rekursiv für Kinderknoten
-                DrawConnections(graphics, child);
-            }
         }
 
         private void cmbEntities_SelectedIndexChanged(object sender, EventArgs e)
@@ -337,7 +236,7 @@ namespace FieldGraphX
 
             if (string.IsNullOrEmpty(entity) || string.IsNullOrEmpty(field))
             {
-                MessageBox.Show("Bitte Entität und Feld angeben.");
+                MessageBox.Show("Please specify entity and field.");
                 return;
             }
 
@@ -345,7 +244,7 @@ namespace FieldGraphX
 
             WorkAsync(new WorkAsyncInfo
             {
-                Message = "Flows werden analysiert...",
+                Message = "Flows are analyzed...",
                 Work = (w, ev) =>
                 {
                     var analyzer = new FlowAnalyzer(Service);
@@ -355,74 +254,444 @@ namespace FieldGraphX
                 PostWorkCallBack = ev =>
                 {
                     var hierarchy = ev.Result as List<FlowUsage>;
+                    //MessageBox.Show($"Anzahl der Flows: {hierarchy.Count + hierarchy.Sum(f => f.Parents.Count)}");
                     if (hierarchy != null && hierarchy.Count > 0)
                     {
-                        // Visualisiere die hierarchische Struktur der Flows
-                        foreach (var flow in hierarchy)
-                        {
-                            var pos = DrawBox(flow);
-                            foreach (var parent in flow.Parents)
-                            {
-                                var parentPos = DrawBox(parent);
-                            }
-                        }
+                        if (checkBox1.Checked) // Wenn die Checkbox aktiviert ist, einfache Visualisierung verwenden
+                            VisualizeFlowHierarchyWithArrows(hierarchy);
+                        else // Ansonsten die komplexe Visualisierung verwenden (FlowVisualizationPanel
+                            MessageBox.Show("Not implementet");//VisualizeFlowHierarchy(hierarchy); // Hier die Methode aufrufen
                     }
                     else
                     {
-                        MessageBox.Show("Keine Flows gefunden.");
+                        MessageBox.Show("No flows found.");
                     }
                 }
             });
         }
 
-        private Point DrawBox(FlowUsage flow)
+
+
+        public void VisualizeFlowHierarchyWithArrows(List<FlowUsage> hierarchy)
         {
-            
-            // Panel für den aktuellen Flow erstellen
-            var flowPanel = new Panel
+            // Speichere die aktuellen Flows für das Zeichnen der Verbindungen
+            currentFlows = hierarchy ?? new List<FlowUsage>();
+
+            // Verwende das vorhandene flpResults Panel, aber konfiguriere es neu
+            flpResults.Controls.Clear();
+            flpResults.AutoScroll = true;
+            flpResults.FlowDirection = FlowDirection.TopDown;
+            flpResults.WrapContents = false;
+            flpResults.BackColor = Color.White;
+
+            // Entferne vorherige Paint-Handler
+            flpResults.Paint -= DrawConnectionsOnPanel;
+            flpResults.Paint += DrawConnectionsOnPanel;
+
+            // Debug-Ausgabe
+            System.Diagnostics.Debug.WriteLine($"Flows zu visualisieren: {hierarchy.Count}");
+
+            if (hierarchy.Count == 0)
             {
-                BorderStyle = BorderStyle.FixedSingle,
-                Width = 300,
-                Height = 120,
-                Padding = new Padding(10),
-                Location = new Point(50 * 350, 50 * 150) // Position basierend auf Level und Index
-            };
+                var noDataLabel = new Label();
+                noDataLabel.Text = "Keine Flows gefunden";
+                noDataLabel.Size = new Size(200, 30);
+                noDataLabel.Font = new Font("Arial", 12, FontStyle.Bold);
+                noDataLabel.ForeColor = Color.Red;
+                flpResults.Controls.Add(noDataLabel);
+                return;
+            }
 
-            var lblFlowName = new Label
+            // Analysiere und sortiere die Hierarchie
+            var hierarchyLevels = BuildCompleteHierarchy(hierarchy);
+
+            // Positioniere die Flow-Karten im FlowLayoutPanel
+            PositionFlowCardsInFlowPanel(flpResults, hierarchyLevels);
+
+            foreach (var level in hierarchyLevels)
             {
-                Text = $"Flow: {flow.FlowName}",
-                Font = new Font("Arial", 10, FontStyle.Bold),
-                Dock = DockStyle.Top,
-                AutoSize = false
-            };
+                System.Diagnostics.Debug.WriteLine($"Level {level.Key}: {level.Value.Count} Flows");
+            }
 
-            var lblTriggerType = new Label
+            // Panel invalidieren, um Paint-Event auszulösen
+            flpResults.Invalidate();
+        }
+
+        private Dictionary<int, List<FlowUsage>> BuildCompleteHierarchy(List<FlowUsage> flows)
+        {
+            var result = new Dictionary<int, List<FlowUsage>>();
+            var flowLevels = new Dictionary<Guid, int>(); // FlowID -> Level
+            var processedFlows = new HashSet<Guid>();
+
+            // Erstelle eine Lookup-Map für schnelleren Zugriff
+            var flowLookup = flows.ToDictionary(f => f.FlowID, f => f);
+
+            // Level 0: Root Flows (keine Parents oder Parents nicht in der aktuellen Liste)
+            var rootFlows = flows.Where(f =>
+                f.Parents == null ||
+                f.Parents.Count == 0 ||
+                !f.Parents.Any(p => flowLookup.ContainsKey(p.FlowID))
+            ).ToList();
+
+            if (rootFlows.Count > 0)
             {
-                Text = $"Trigger: {flow.Trigger.Name}",
-                Dock = DockStyle.Top
-            };
+                result[0] = rootFlows;
+                foreach (var flow in rootFlows)
+                {
+                    flowLevels[flow.FlowID] = 0;
+                    processedFlows.Add(flow.FlowID);
+                }
+            }
 
-            var lblFieldUsedAsTrigger = new Label
+            // Weitere Levels aufbauen
+            int level = 1;
+            bool foundFlowsInLevel = true;
+
+            while (foundFlowsInLevel && level < 20) // Sicherheit gegen Endlosschleife
             {
-                Text = $"Feld als Trigger verwendet: {flow.IsFieldUsedAsTrigger}",
-                Dock = DockStyle.Top
-            };
+                foundFlowsInLevel = false;
+                var levelFlows = new List<FlowUsage>();
 
-            var lblFieldSet = new Label
+                foreach (var flow in flows.Where(f => !processedFlows.Contains(f.FlowID)))
+                {
+                    if (flow.Parents != null && flow.Parents.Count > 0)
+                    {
+                        // Prüfe ob alle Parents bereits verarbeitet wurden
+                        var parentLevels = flow.Parents
+                            .Where(p => flowLevels.ContainsKey(p.FlowID))
+                            .Select(p => flowLevels[p.FlowID])
+                            .ToList();
+
+                        if (parentLevels.Count > 0 && parentLevels.Count == flow.Parents.Count(p => flowLookup.ContainsKey(p.FlowID)))
+                        {
+                            // Flow kann auf diesem Level platziert werden
+                            levelFlows.Add(flow);
+                            flowLevels[flow.FlowID] = level;
+                            processedFlows.Add(flow.FlowID);
+                            foundFlowsInLevel = true;
+                        }
+                    }
+                }
+
+                if (levelFlows.Count > 0)
+                {
+                    result[level] = levelFlows;
+                }
+
+                level++;
+            }
+
+            // Alle übrigen Flows (Zyklen oder isolierte Flows)
+            var remainingFlows = flows.Where(f => !processedFlows.Contains(f.FlowID)).ToList();
+            if (remainingFlows.Count > 0)
             {
-                Text = $"Feld wird gesetzt: {flow.IsFieldSet}",
-                Dock = DockStyle.Top
+                result[level] = remainingFlows;
+                foreach (var flow in remainingFlows)
+                {
+                    flowLevels[flow.FlowID] = level;
+                }
+            }
+
+            return result;
+        }
+
+        private void PositionFlowCardsInFlowPanel(FlowLayoutPanel container, Dictionary<int, List<FlowUsage>> hierarchyLevels)
+        {
+            container.Controls.Clear();
+
+            const int cardWidth = 280;
+            const int cardHeight = 160;
+
+            // Dictionary zum Speichern der Positionen für das Zeichnen der Verbindungen
+            //flowCardPositions = new Dictionary<Guid, Rectangle>();
+
+            foreach (var level in hierarchyLevels.OrderBy(l => l.Key))
+            {
+                // Level-Header
+                var levelHeader = new Label();
+                if (level.Key == 0)
+                {
+                    levelHeader.Text = $"🌱 Root Flows (Level {level.Key})";
+                    levelHeader.BackColor = Color.LightGreen;
+                }
+                else
+                {
+                    levelHeader.Text = $"🔗 Dependent Flows - Level {level.Key}";
+                    levelHeader.BackColor = Color.LightBlue;
+                }
+                levelHeader.Font = new Font("Arial", 10, FontStyle.Bold);
+                levelHeader.Size = new Size(container.Width - 40, 30);
+                levelHeader.TextAlign = ContentAlignment.MiddleLeft;
+                levelHeader.BorderStyle = BorderStyle.FixedSingle;
+                levelHeader.Margin = new Padding(5);
+                container.Controls.Add(levelHeader);
+
+                // Flow-Karten in diesem Level hinzufügen
+                foreach (var flow in level.Value)
+                {
+                    var flowCard = CreateEnhancedFlowCard(flow);
+                    flowCard.Size = new Size(cardWidth, cardHeight);
+
+                    // Speichere die Position für Verbindungslinien
+                    // Da FlowLayoutPanel die Position automatisch setzt, verwenden wir den LocationChanged Event
+                    flowCard.LocationChanged += (sender, e) => {
+                        if (sender is Panel card && card.Tag is FlowUsage f)
+                        {
+                            flowCardPositions[f.FlowID] = new Rectangle(card.Location, card.Size);
+                            container.Invalidate(); // Neu zeichnen der Verbindungen
+                        }
+                    };
+
+                    container.Controls.Add(flowCard);
+                }
+
+                // Trennlinie zwischen Leveln
+                if (level.Key < hierarchyLevels.Keys.Max())
+                {
+                    var separator = new Label();
+                    separator.Text = "";
+                    separator.Size = new Size(container.Width - 40, 3);
+                    separator.BackColor = Color.Gray;
+                    separator.Margin = new Padding(5, 10, 5, 10);
+                    container.Controls.Add(separator);
+                }
+            }
+
+            // Warte kurz und aktualisiere dann die Positionen
+            Timer positionTimer = new Timer();
+            positionTimer.Interval = 100;
+            positionTimer.Tick += (sender, e) => {
+                UpdateFlowCardPositions(container);
+                positionTimer.Stop();
+                positionTimer.Dispose();
             };
+            positionTimer.Start();
+        }
 
-            flowPanel.Controls.Add(lblFlowName);
-            flowPanel.Controls.Add(lblTriggerType);
-            flowPanel.Controls.Add(lblFieldUsedAsTrigger);
-            flowPanel.Controls.Add(lblFieldSet);
+        private void UpdateFlowCardPositions(FlowLayoutPanel container)
+        {
+            foreach (Control control in container.Controls)
+            {
+                if (control.Tag is FlowUsage flow)
+                {
+                    flowCardPositions[flow.FlowID] = new Rectangle(control.Location, control.Size);
+                }
+            }
+            container.Invalidate();
+        }
 
-            flpResults.Controls.Add(flowPanel);
-            return flowPanel.Location; // Position speichern
+        // Dictionary zum Speichern der Flow-Positionen für das Zeichnen der Verbindungen
+        //private Dictionary<Guid, Rectangle> flowCardPositions = new Dictionary<Guid, Rectangle>();
 
-            
+        private void DrawConnectionsOnPanel(object sender, PaintEventArgs e)
+        {
+            DrawConnections(e.Graphics, sender as Control);
+        }
+
+        private void DrawConnections(Graphics g, Control container)
+        {
+            if (flowCardPositions == null || flowCardPositions.Count == 0 || currentFlows == null)
+                return;
+
+            var pen = new Pen(Color.DarkBlue, 2);
+            var arrowPen = new Pen(Color.DarkRed, 2);
+
+            // Erstelle Lookup für schnelleren Zugriff
+            var flowLookup = currentFlows.ToDictionary(f => f.FlowID, f => f);
+
+            foreach (var flow in currentFlows)
+            {
+                if (flow.Parents == null || flow.Parents.Count == 0)
+                    continue;
+
+                if (!flowCardPositions.ContainsKey(flow.FlowID))
+                    continue;
+
+                var childRect = flowCardPositions[flow.FlowID];
+
+                foreach (var parent in flow.Parents)
+                {
+                    if (flowCardPositions.ContainsKey(parent.FlowID))
+                    {
+                        var parentRect = flowCardPositions[parent.FlowID];
+
+                        // Berechne Verbindungspunkte
+                        Point parentPoint = new Point(
+                            parentRect.X + parentRect.Width / 2,
+                            parentRect.Y + parentRect.Height - 5
+                        );
+
+                        Point childPoint = new Point(
+                            childRect.X + childRect.Width / 2,
+                            childRect.Y + 5
+                        );
+
+                        // Zeichne Verbindungslinie mit Kurve
+                        DrawCurvedConnection(g, pen, parentPoint, childPoint);
+
+                        // Zeichne Pfeilspitze
+                        DrawArrowHead(g, arrowPen, parentPoint, childPoint);
+                    }
+                }
+            }
+
+            pen.Dispose();
+            arrowPen.Dispose();
+        }
+
+        private void DrawCurvedConnection(Graphics g, Pen pen, Point start, Point end)
+        {
+            // Erstelle eine geschwungene Linie zwischen den Punkten
+            int midY = (start.Y + end.Y) / 2;
+
+            Point[] points = {
+        start,
+        new Point(start.X, midY),
+        new Point(end.X, midY),
+        end
+    };
+
+            if (points.Length >= 2)
+            {
+                // Zeichne eine einfache Linie, falls Kurven-Zeichnung Probleme macht
+                g.DrawLine(pen, start, end);
+            }
+        }
+
+        private void DrawArrowHead(Graphics g, Pen pen, Point start, Point end)
+        {
+            const double arrowLength = 15;
+            const double arrowAngle = Math.PI / 6; // 30 Grad
+
+            double angle = Math.Atan2(end.Y - start.Y, end.X - start.X);
+
+            // Pfeilspitze Punkte berechnen
+            Point arrowPoint1 = new Point(
+                (int)(end.X - arrowLength * Math.Cos(angle - arrowAngle)),
+                (int)(end.Y - arrowLength * Math.Sin(angle - arrowAngle))
+            );
+
+            Point arrowPoint2 = new Point(
+                (int)(end.X - arrowLength * Math.Cos(angle + arrowAngle)),
+                (int)(end.Y - arrowLength * Math.Sin(angle + arrowAngle))
+            );
+
+            // Zeichne Pfeilspitze
+            g.DrawLine(pen, end, arrowPoint1);
+            g.DrawLine(pen, end, arrowPoint2);
+        }
+
+        private Panel CreateEnhancedFlowCard(FlowUsage flow)
+        {
+            var card = new Panel();
+            card.Size = new Size(280, 160);
+            card.BorderStyle = BorderStyle.FixedSingle;
+            card.Margin = new Padding(5);
+            card.Tag = flow; // Wichtig für das Zeichnen der Verbindungen
+
+            // Hintergrundfarbe basierend auf Status
+            if (flow.IsFieldUsedAsTrigger)
+                card.BackColor = Color.FromArgb(255, 182, 193); // Light Pink
+            else if (flow.IsFieldSet)
+                card.BackColor = Color.FromArgb(144, 238, 144); // Light Green
+            else
+                card.BackColor = Color.FromArgb(211, 211, 211); // Light Gray
+
+            // Flow Name
+            var lblName = new Label();
+            lblName.Text = flow.FlowName ?? "Unnamed Flow";
+            lblName.Font = new Font("Arial", 9, FontStyle.Bold);
+            lblName.Location = new Point(5, 5);
+            lblName.Size = new Size(270, 20);
+            lblName.TextAlign = ContentAlignment.TopCenter;
+            lblName.BackColor = Color.Transparent;
+            card.Controls.Add(lblName);
+
+            // Trigger Info
+            var lblTrigger = new Label();
+            if (flow.Trigger != null)
+            {
+                lblTrigger.Text = $"Trigger: {flow.Trigger.Entity}.{flow.Trigger.Field}";
+            }
+            else
+            {
+                lblTrigger.Text = "No Trigger";
+            }
+            lblTrigger.Font = new Font("Arial", 8);
+            lblTrigger.Location = new Point(5, 30);
+            lblTrigger.Size = new Size(270, 25);
+            lblTrigger.ForeColor = Color.DarkBlue;
+            lblTrigger.BackColor = Color.Transparent;
+            card.Controls.Add(lblTrigger);
+
+            // Parent Info
+            var lblParents = new Label();
+            if (flow.Parents != null && flow.Parents.Count > 0)
+            {
+                var parentNames = flow.Parents.Take(3).Select(p => p.FlowName ?? "Unknown").ToList();
+                if (flow.Parents.Count > 3)
+                {
+                    parentNames.Add($"... and {flow.Parents.Count - 3} more");
+                }
+                lblParents.Text = $"Parents: {string.Join(", ", parentNames)}";
+            }
+            else
+            {
+                lblParents.Text = "Root Flow (No Parents)";
+            }
+            lblParents.Font = new Font("Arial", 8);
+            lblParents.Location = new Point(5, 55);
+            lblParents.Size = new Size(270, 30);
+            lblParents.ForeColor = Color.DarkMagenta;
+            lblParents.BackColor = Color.Transparent;
+            card.Controls.Add(lblParents);
+
+            // Status Info
+            var lblStatus = new Label();
+            var statusParts = new List<string>();
+            if (flow.IsFieldUsedAsTrigger) statusParts.Add("🔵 Uses Field as Trigger");
+            if (flow.IsFieldSet) statusParts.Add("🟢 Sets Field");
+            if (flow.Parents?.Count > 0) statusParts.Add($"🔼 {flow.Parents.Count} Parent Flow(s)");
+
+            lblStatus.Text = statusParts.Count > 0 ? string.Join("\n", statusParts) : "⚪ No special status";
+            lblStatus.Font = new Font("Arial", 8);
+            lblStatus.Location = new Point(5, 90);
+            lblStatus.Size = new Size(270, 45);
+            lblStatus.ForeColor = Color.DarkGreen;
+            lblStatus.BackColor = Color.Transparent;
+            card.Controls.Add(lblStatus);
+
+            // Open Flow Button
+            var btnOpen = new Button();
+            btnOpen.Text = "Open Flow";
+            btnOpen.Size = new Size(80, 25);
+            btnOpen.Location = new Point(100, 135);
+            btnOpen.BackColor = Color.LightSkyBlue;
+            btnOpen.FlatStyle = FlatStyle.Flat;
+            btnOpen.Click += (sender, e) => {
+                if (!string.IsNullOrEmpty(flow.FlowUrl))
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = flow.FlowUrl,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not open flow: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No URL available for this flow.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+            card.Controls.Add(btnOpen);
+
+            return card;
         }
     }
 }

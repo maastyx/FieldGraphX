@@ -23,12 +23,12 @@ namespace FieldGraphX
             this.lblEntity = new System.Windows.Forms.Label();
             this.lblField = new System.Windows.Forms.Label();
             this.btnAnalyze = new System.Windows.Forms.Button();
-            this.tvResults = new System.Windows.Forms.TreeView();
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.tsbClose = new System.Windows.Forms.ToolStripButton();
             this.tssSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.flpResults = new System.Windows.Forms.FlowLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // cmbEntities
@@ -57,18 +57,18 @@ namespace FieldGraphX
             this.lblEntity.AutoSize = true;
             this.lblEntity.Location = new System.Drawing.Point(20, 30);
             this.lblEntity.Name = "lblEntity";
-            this.lblEntity.Size = new System.Drawing.Size(94, 13);
+            this.lblEntity.Size = new System.Drawing.Size(36, 13);
             this.lblEntity.TabIndex = 2;
-            this.lblEntity.Text = "Entität auswählen:";
+            this.lblEntity.Text = "Entity:";
             // 
             // lblField
             // 
             this.lblField.AutoSize = true;
             this.lblField.Location = new System.Drawing.Point(20, 70);
             this.lblField.Name = "lblField";
-            this.lblField.Size = new System.Drawing.Size(84, 13);
+            this.lblField.Size = new System.Drawing.Size(32, 13);
             this.lblField.TabIndex = 3;
-            this.lblField.Text = "Feld auswählen:";
+            this.lblField.Text = "Field:";
             // 
             // btnAnalyze
             // 
@@ -76,16 +76,9 @@ namespace FieldGraphX
             this.btnAnalyze.Name = "btnAnalyze";
             this.btnAnalyze.Size = new System.Drawing.Size(75, 23);
             this.btnAnalyze.TabIndex = 4;
-            this.btnAnalyze.Text = "Analysieren";
+            this.btnAnalyze.Text = "Analyze";
             this.btnAnalyze.UseVisualStyleBackColor = true;
             this.btnAnalyze.Click += new System.EventHandler(this.btnSearch_Click);
-            // 
-            // tvResults
-            // 
-            this.tvResults.Location = new System.Drawing.Point(20, 113);
-            this.tvResults.Name = "tvResults";
-            this.tvResults.Size = new System.Drawing.Size(702, 219);
-            this.tvResults.TabIndex = 5;
             // 
             // toolStripMenu
             // 
@@ -108,9 +101,9 @@ namespace FieldGraphX
             // 
             this.flpResults.AutoScroll = true;
             this.flpResults.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpResults.Location = new System.Drawing.Point(20, 338);
+            this.flpResults.Location = new System.Drawing.Point(23, 125);
             this.flpResults.Name = "flpResults";
-            this.flpResults.Size = new System.Drawing.Size(1329, 367);
+            this.flpResults.Size = new System.Drawing.Size(1433, 367);
             this.flpResults.TabIndex = 6;
             // 
             // button1
@@ -119,22 +112,32 @@ namespace FieldGraphX
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(132, 23);
             this.button1.TabIndex = 7;
-            this.button1.Text = "Analysieren Herachie";
+            this.button1.Text = "Analyze herachy";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(657, 73);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(77, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Text = "New Logic";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // FieldGraphXControl
             // 
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.cmbEntities);
             this.Controls.Add(this.cmbFields);
             this.Controls.Add(this.lblEntity);
             this.Controls.Add(this.lblField);
             this.Controls.Add(this.btnAnalyze);
-            this.Controls.Add(this.tvResults);
             this.Controls.Add(this.flpResults);
             this.Name = "FieldGraphXControl";
-            this.Size = new System.Drawing.Size(1383, 708);
+            this.Size = new System.Drawing.Size(1555, 601);
             this.Load += new System.EventHandler(this.FieldGraphXControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -151,10 +154,10 @@ namespace FieldGraphX
         private System.Windows.Forms.Label lblEntity;
         private System.Windows.Forms.Label lblField;
         private System.Windows.Forms.Button btnAnalyze;
-        private System.Windows.Forms.TreeView tvResults;
         private ComboBox cmbEntities;
         private ComboBox cmbFields;
         private FlowLayoutPanel flpResults;
         private Button button1;
+        private CheckBox checkBox1;
     }
 }

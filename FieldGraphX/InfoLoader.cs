@@ -38,7 +38,7 @@ namespace FieldGraphX
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler beim Laden der Entitäten: {ex.Message}");
+                MessageBox.Show($"Error loading the entities:{ex.Message}");
                 return new List<string>();
             }
         }
@@ -62,7 +62,7 @@ namespace FieldGraphX
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Fehler beim Laden der Felder: {ex.Message}");
+                MessageBox.Show($"Error loading the fields: {ex.Message}");
                 return new List<string>();
             }
         }

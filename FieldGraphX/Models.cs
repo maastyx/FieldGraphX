@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FieldGraphX.Models
 {
@@ -10,6 +11,7 @@ namespace FieldGraphX.Models
         public string FlowUrl { get; set; }
         public Trigger Trigger { get; set; }
         public List<FlowUsage> Parents { get; set; } = new List<FlowUsage>();
+        public Guid FlowID { get; set; }
     }
 
     public class Trigger

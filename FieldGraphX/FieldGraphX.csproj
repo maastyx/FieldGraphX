@@ -178,6 +178,9 @@
     <Compile Include="FlowAnalyzer.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="FlowVisualizationPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="InfoLoader.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -188,9 +191,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Unbenannt.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FieldGraphXControl.resx">
