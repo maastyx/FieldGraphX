@@ -326,6 +326,9 @@ namespace FieldGraphX
             // Erstelle eine Lookup-Map für schnelleren Zugriff
             var flowLookup = flows.ToDictionary(f => f.FlowID, f => f);
 
+            // ERWEITERT: Berechne für jeden Flow die maximale Tiefe seiner Ancestry
+            var flowDepths = CalculateFlowDepths(flows, flowLookup);
+
             // Level 0: Root Flows (keine Parents oder Parents nicht in der aktuellen Liste)
             var rootFlows = flows.Where(f =>
                 f.Parents == null ||
@@ -343,11 +346,11 @@ namespace FieldGraphX
                 }
             }
 
-            // Weitere Levels aufbauen
+            // Weitere Levels aufbauen - ERWEITERT für tiefe Hierarchien
             int level = 1;
             bool foundFlowsInLevel = true;
 
-            while (foundFlowsInLevel && level < 20) // Sicherheit gegen Endlosschleife
+            while (foundFlowsInLevel && level < 50) // Erhöht für tiefe Hierarchien
             {
                 foundFlowsInLevel = false;
                 var levelFlows = new List<FlowUsage>();
@@ -356,17 +359,18 @@ namespace FieldGraphX
                 {
                     if (flow.Parents != null && flow.Parents.Count > 0)
                     {
-                        // Prüfe ob alle Parents bereits verarbeitet wurden
-                        var parentLevels = flow.Parents
-                            .Where(p => flowLevels.ContainsKey(p.FlowID))
-                            .Select(p => flowLevels[p.FlowID])
-                            .ToList();
+                        // Prüfe ob mindestens ein Parent bereits verarbeitet wurde
+                        var availableParents = flow.Parents.Where(p => flowLookup.ContainsKey(p.FlowID)).ToList();
+                        var processedParents = availableParents.Where(p => flowLevels.ContainsKey(p.FlowID)).ToList();
 
-                        if (parentLevels.Count > 0 && parentLevels.Count == flow.Parents.Count(p => flowLookup.ContainsKey(p.FlowID)))
+                        if (processedParents.Count > 0)
                         {
+                            // Berechne das Level basierend auf dem tiefsten Parent + 1
+                            var maxParentLevel = processedParents.Max(p => flowLevels[p.FlowID]);
+
                             // Flow kann auf diesem Level platziert werden
                             levelFlows.Add(flow);
-                            flowLevels[flow.FlowID] = level;
+                            flowLevels[flow.FlowID] = maxParentLevel + 1;
                             processedFlows.Add(flow.FlowID);
                             foundFlowsInLevel = true;
                         }
@@ -375,7 +379,15 @@ namespace FieldGraphX
 
                 if (levelFlows.Count > 0)
                 {
-                    result[level] = levelFlows;
+                    // Sortiere Flows nach ihrer berechneten Ebene
+                    var sortedLevelFlows = levelFlows.GroupBy(f => flowLevels[f.FlowID]);
+
+                    foreach (var group in sortedLevelFlows)
+                    {
+                        if (!result.ContainsKey(group.Key))
+                            result[group.Key] = new List<FlowUsage>();
+                        result[group.Key].AddRange(group.ToList());
+                    }
                 }
 
                 level++;
@@ -385,14 +397,63 @@ namespace FieldGraphX
             var remainingFlows = flows.Where(f => !processedFlows.Contains(f.FlowID)).ToList();
             if (remainingFlows.Count > 0)
             {
-                result[level] = remainingFlows;
+                var maxLevel = result.Keys.Count > 0 ? result.Keys.Max() + 1 : 0;
+                result[maxLevel] = remainingFlows;
                 foreach (var flow in remainingFlows)
                 {
-                    flowLevels[flow.FlowID] = level;
+                    flowLevels[flow.FlowID] = maxLevel;
                 }
             }
 
             return result;
+        }
+
+        // NEUE METHODE: Berechnet die Tiefe jedes Flows in der Hierarchie
+        private Dictionary<Guid, int> CalculateFlowDepths(List<FlowUsage> flows, Dictionary<Guid, FlowUsage> flowLookup)
+        {
+            var depths = new Dictionary<Guid, int>();
+            var calculating = new HashSet<Guid>(); // Verhindert Zyklen
+
+            foreach (var flow in flows)
+            {
+                CalculateDepthRecursive(flow.FlowID, flows, flowLookup, depths, calculating);
+            }
+
+            return depths;
+        }
+
+        private int CalculateDepthRecursive(Guid flowId, List<FlowUsage> allFlows, Dictionary<Guid, FlowUsage> flowLookup, Dictionary<Guid, int> depths, HashSet<Guid> calculating)
+        {
+            // Bereits berechnet
+            if (depths.ContainsKey(flowId))
+                return depths[flowId];
+
+            // Zyklus erkannt
+            if (calculating.Contains(flowId))
+                return 0;
+
+            // Flow nicht in der aktuellen Liste
+            if (!flowLookup.ContainsKey(flowId))
+                return 0;
+
+            calculating.Add(flowId);
+
+            var flow = flowLookup[flowId];
+            int maxParentDepth = 0;
+
+            if (flow.Parents != null && flow.Parents.Count > 0)
+            {
+                foreach (var parent in flow.Parents)
+                {
+                    var parentDepth = CalculateDepthRecursive(parent.FlowID, allFlows, flowLookup, depths, calculating);
+                    maxParentDepth = Math.Max(maxParentDepth, parentDepth);
+                }
+            }
+
+            calculating.Remove(flowId);
+            depths[flowId] = maxParentDepth + 1;
+
+            return depths[flowId];
         }
 
         private void PositionFlowCardsInFlowPanel(FlowLayoutPanel container, Dictionary<int, List<FlowUsage>> hierarchyLevels)
@@ -403,7 +464,7 @@ namespace FieldGraphX
             const int cardHeight = 160;
 
             // Dictionary zum Speichern der Positionen für das Zeichnen der Verbindungen
-            //flowCardPositions = new Dictionary<Guid, Rectangle>();
+            flowCardPositions = new Dictionary<Guid, Rectangle>();
 
             foreach (var level in hierarchyLevels.OrderBy(l => l.Key))
             {
@@ -584,7 +645,7 @@ namespace FieldGraphX
         private Panel CreateEnhancedFlowCard(FlowUsage flow)
         {
             var card = new Panel();
-            card.Size = new Size(280, 160);
+            card.Size = new Size(280, 180); // Etwas höher für mehr Parent-Info
             card.BorderStyle = BorderStyle.FixedSingle;
             card.Margin = new Padding(5);
             card.Tag = flow; // Wichtig für das Zeichnen der Verbindungen
@@ -611,52 +672,44 @@ namespace FieldGraphX
             var lblTrigger = new Label();
             if (flow.Trigger != null)
             {
-                lblTrigger.Text = $"Trigger: {flow.Trigger.Entity}.{flow.Trigger.Field}";
+                lblTrigger.Text = $"🎯 Trigger: {flow.Trigger.Entity}.{flow.Trigger.Field}";
             }
             else
             {
-                lblTrigger.Text = "No Trigger";
+                lblTrigger.Text = "❌ No Trigger";
             }
             lblTrigger.Font = new Font("Arial", 8);
             lblTrigger.Location = new Point(5, 30);
-            lblTrigger.Size = new Size(270, 25);
+            lblTrigger.Size = new Size(270, 20);
             lblTrigger.ForeColor = Color.DarkBlue;
             lblTrigger.BackColor = Color.Transparent;
             card.Controls.Add(lblTrigger);
 
-            // Parent Info
-            var lblParents = new Label();
-            if (flow.Parents != null && flow.Parents.Count > 0)
-            {
-                var parentNames = flow.Parents.Take(3).Select(p => p.FlowName ?? "Unknown").ToList();
-                if (flow.Parents.Count > 3)
-                {
-                    parentNames.Add($"... and {flow.Parents.Count - 3} more");
-                }
-                lblParents.Text = $"Parents: {string.Join(", ", parentNames)}";
-            }
-            else
-            {
-                lblParents.Text = "Root Flow (No Parents)";
-            }
-            lblParents.Font = new Font("Arial", 8);
-            lblParents.Location = new Point(5, 55);
-            lblParents.Size = new Size(270, 30);
-            lblParents.ForeColor = Color.DarkMagenta;
-            lblParents.BackColor = Color.Transparent;
-            card.Controls.Add(lblParents);
+            // ERWEITERTE Parent-Hierarchie Info
+            var lblParentHierarchy = new Label();
+            lblParentHierarchy.Text = BuildParentHierarchyText(flow);
+            lblParentHierarchy.Font = new Font("Arial", 7);
+            lblParentHierarchy.Location = new Point(5, 55);
+            lblParentHierarchy.Size = new Size(270, 50);
+            lblParentHierarchy.ForeColor = Color.DarkMagenta;
+            lblParentHierarchy.BackColor = Color.Transparent;
+            card.Controls.Add(lblParentHierarchy);
 
             // Status Info
             var lblStatus = new Label();
             var statusParts = new List<string>();
             if (flow.IsFieldUsedAsTrigger) statusParts.Add("🔵 Uses Field as Trigger");
             if (flow.IsFieldSet) statusParts.Add("🟢 Sets Field");
-            if (flow.Parents?.Count > 0) statusParts.Add($"🔼 {flow.Parents.Count} Parent Flow(s)");
+
+            // Zähle Gesamtanzahl der Ancestors
+            var totalAncestors = CountAllAncestors(flow);
+            if (totalAncestors > 0)
+                statusParts.Add($"👥 {totalAncestors} Total Ancestors");
 
             lblStatus.Text = statusParts.Count > 0 ? string.Join("\n", statusParts) : "⚪ No special status";
             lblStatus.Font = new Font("Arial", 8);
-            lblStatus.Location = new Point(5, 90);
-            lblStatus.Size = new Size(270, 45);
+            lblStatus.Location = new Point(5, 110);
+            lblStatus.Size = new Size(270, 40);
             lblStatus.ForeColor = Color.DarkGreen;
             lblStatus.BackColor = Color.Transparent;
             card.Controls.Add(lblStatus);
@@ -665,7 +718,7 @@ namespace FieldGraphX
             var btnOpen = new Button();
             btnOpen.Text = "Open Flow";
             btnOpen.Size = new Size(80, 25);
-            btnOpen.Location = new Point(100, 135);
+            btnOpen.Location = new Point(100, 155);
             btnOpen.BackColor = Color.LightSkyBlue;
             btnOpen.FlatStyle = FlatStyle.Flat;
             btnOpen.Click += (sender, e) => {
@@ -692,6 +745,99 @@ namespace FieldGraphX
             card.Controls.Add(btnOpen);
 
             return card;
+
         }
+
+        private string BuildParentHierarchyText(FlowUsage flow)
+        {
+            if (flow.Parents == null || flow.Parents.Count == 0)
+                return "🌱 Root Flow (No Parents)";
+
+            var hierarchyLines = new List<string>();
+            var visitedFlows = new HashSet<Guid>();
+
+            // Direkte Parents
+            hierarchyLines.Add($"📋 Direct Parents ({flow.Parents.Count}):");
+            foreach (var parent in flow.Parents.Take(2)) // Zeige max 2 direkte Parents
+            {
+                hierarchyLines.Add($"  ↳ {parent.FlowName ?? "Unknown"}");
+            }
+
+            if (flow.Parents.Count > 2)
+                hierarchyLines.Add($"  ... and {flow.Parents.Count - 2} more");
+
+            // Finde Großeltern (Parents der Parents)
+            var grandParents = GetGrandParents(flow, visitedFlows);
+            if (grandParents.Count > 0)
+            {
+                hierarchyLines.Add($"👴 Grandparents ({grandParents.Count}):");
+                foreach (var grandParent in grandParents.Take(2))
+                {
+                    hierarchyLines.Add($"  ↳↳ {grandParent.FlowName ?? "Unknown"}");
+                }
+                if (grandParents.Count > 2)
+                    hierarchyLines.Add($"  ... and {grandParents.Count - 2} more");
+            }
+
+            return string.Join("\n", hierarchyLines);
+        }
+
+        // NEUE METHODE: Findet alle Großeltern (Parents der Parents)
+        private List<FlowUsage> GetGrandParents(FlowUsage flow, HashSet<Guid> visitedFlows)
+        {
+            var grandParents = new List<FlowUsage>();
+
+            if (flow.Parents == null || visitedFlows.Contains(flow.FlowID))
+                return grandParents;
+
+            visitedFlows.Add(flow.FlowID);
+
+            foreach (var parent in flow.Parents)
+            {
+                // Finde den Parent-Flow in der aktuellen Liste
+                var parentFlow = currentFlows?.FirstOrDefault(f => f.FlowID == parent.FlowID);
+                if (parentFlow?.Parents != null)
+                {
+                    foreach (var grandParent in parentFlow.Parents)
+                    {
+                        if (!grandParents.Any(gp => gp.FlowID == grandParent.FlowID))
+                        {
+                            grandParents.Add(grandParent);
+                        }
+                    }
+                }
+            }
+
+            return grandParents;
+        }
+
+        // NEUE METHODE: Zählt alle Ancestors (rekursiv)
+        private int CountAllAncestors(FlowUsage flow)
+        {
+            var allAncestors = new HashSet<Guid>();
+            CountAncestorsRecursive(flow, allAncestors, new HashSet<Guid>());
+            return allAncestors.Count;
+        }
+
+        private void CountAncestorsRecursive(FlowUsage flow, HashSet<Guid> allAncestors, HashSet<Guid> visited)
+        {
+            if (flow.Parents == null || visited.Contains(flow.FlowID))
+                return;
+
+            visited.Add(flow.FlowID);
+
+            foreach (var parent in flow.Parents)
+            {
+                allAncestors.Add(parent.FlowID);
+
+                // Finde den Parent-Flow und gehe rekursiv weiter
+                var parentFlow = currentFlows?.FirstOrDefault(f => f.FlowID == parent.FlowID);
+                if (parentFlow != null)
+                {
+                    CountAncestorsRecursive(parentFlow, allAncestors, visited);
+                }
+            }
+        }
+
     }
 }
