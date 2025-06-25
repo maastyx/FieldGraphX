@@ -138,6 +138,7 @@ namespace FieldGraphX
             this.Controls.Add(this.flpResults);
             this.Name = "FieldGraphXControl";
             this.Size = new System.Drawing.Size(1555, 601);
+            this.OnCloseTool += new System.EventHandler(this.FieldGraphXControl_OnCloseTool);
             this.Load += new System.EventHandler(this.FieldGraphXControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

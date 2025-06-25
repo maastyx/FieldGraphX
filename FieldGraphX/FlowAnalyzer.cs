@@ -76,7 +76,7 @@ namespace FlowGraphX
                         },
                         IsFieldUsedAsTrigger = IsFieldUsedInTrigger(json, entityLogicalName, fieldLogicalName),
                         IsFieldSet = IsFieldSet(json, entityLogicalName, fieldLogicalName),
-                        FlowUrl = $"{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}",
+                        FlowUrl = $"https://make.powerautomate.com/environments/{environmentUrl}/flows/{flow.GetAttributeValue<Guid>("workflowid").ToString()}/details",
                         FlowID = flow.GetAttributeValue<Guid>("workflowid") // Flow ID für spätere Vergleiche
                         // Dynamische URL basierend auf Umgebung
                     };
